@@ -1,8 +1,13 @@
 const express = require("express");
 require("express-async-errors");
+const csrf = require('host-csrf')
+const cookieParser =require("cookie-parser")
 
 require("dotenv").config(); // to load the .env file into the process.env object
 const session = require("express-session");
+
+const passport = require("passport");
+const passportInit = require("./passport/passportInit");
 
 const app = express();
 
@@ -14,14 +19,15 @@ app.use(
   })
 );
 
-const passport = require("passport");
-const passportInit = require("./passport/passportInit");
 
 passportInit();
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(require("connect-flash")());
+app.use(require("body-parser").urlencoded({ extended: true }));
+
+
 
 app.use(require("./middleware/storeLocals"));
 app.get("/", (req, res) => {
@@ -30,7 +36,22 @@ app.get("/", (req, res) => {
 app.use("/sessions", require("./routes/sessionRoutes"));
 
 app.set("view engine", "ejs");
-app.use(require("body-parser").urlencoded({ extended: true }));
+
+//csrf
+let csrf_development_mode = true;
+
+app.use(cookieParser(process.env.SESSION_SECRET));
+
+app.use(express.urlencoded({ extended: false }));
+
+const csrf_options = {
+  protected_operations: ["PATCH"],
+  protected_content_types: ["application/json"],
+  development_mode: csrf_development_mode,
+};
+const csrf_middleware = csrf(csrf_options); //initialise and return middlware
+
+app.use(csrf_middleware);
 
 // secret word handling
 let secretWord = "syzygy";
