@@ -1,0 +1,25 @@
+<h2>Edit EV</h2>
+<form method="POST">
+    <input type="hidden" name="_csrf" value="<%= _csrf %>">
+    <div>
+        <label name="make">make:</label>
+        <input name="make" value="<%= ev ? ev.make : '' %>" type="text" id="make" />
+    </div>
+    <div>
+        <label name="model">model:</label>
+        <input name="model" value="<%= ev ? ev.model : '' %>" type="text" id="model" />
+    </div>
+    <div>
+        <label for="status">status:</label>
+        <select value="<%= ev ? ev.status : '' %>" type="text" id="status">
+            <option value="unknown">unknown</option>
+            <option value="credit eligible">credit eligible</option>
+            <option value="not credit eligible">not credit eligible</option>
+        </select>
+    </div>
+    <% if (ev) { %>
+        <button>Update</button>
+    <% } else { %>
+        <button>Create</button>
+    <% } %>
+</form>
