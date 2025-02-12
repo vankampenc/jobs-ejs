@@ -28,12 +28,21 @@ app.use(require("connect-flash")());
 app.use(require("body-parser").urlencoded({ extended: true }));
 
 app.use(require("./middleware/storeLocals"));
+
+app.set("view engine", "ejs");
+app.use(require("body-parser").urlencoded({ extended: true }));
+
 app.get("/", (req, res) => {
   res.render("index");
 });
 app.use("/sessions", require("./routes/sessionRoutes"));
 
-app.set("view engine", "ejs");
+// secret word handling
+let secretWord = "syzygy";
+const secretWordRouter = require("./routes/secretWord");
+app.use("/secretWord", secretWordRouter);
+const auth = require("./middleware/auth");
+app.use("/secretWord", auth, secretWordRouter);
 
 const MongoDBStore = require("connect-mongodb-session")(session);
 const url = process.env.MONGO_URI;
