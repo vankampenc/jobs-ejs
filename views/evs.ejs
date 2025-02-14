@@ -1,4 +1,9 @@
 <h2>Evs List</h2>
+
+<a href="/evs/new">
+    <button type="button">Add New EV</button>
+</a>
+
 <table id="evs-table">
     <tr id="evs-table-header">
         <th>Make</th>
@@ -18,9 +23,11 @@
                 <td>
                     <%= ev.status %>
                 </td>
-                <a href="/evs/edit/<%= ev.id %>">
-                    <button type="button">edit</button>
-                </a>
+                <td>
+                    <a href="/evs/edit/<%= ev.id %>">
+                        <button type="button">edit</button>
+                    </a>
+                </td>
                 <td>
                     <form method="POST" action="/evs/delete/<%= ev.id %>" style="display: inline">
                         <button type="submit">delete</button>
@@ -31,3 +38,7 @@
             <% }) %>
                 <% } %>
 </table>
+
+<a href="/">
+    <button type="button">Home</button>
+</a>

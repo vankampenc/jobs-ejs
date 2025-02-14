@@ -9,7 +9,20 @@ const session = require("express-session");
 const passport = require("passport");
 const passportInit = require("./passport/passportInit");
 
+//extra security packages
+const helmet =  require('helmet')
+const xss = require('xss-clean')
+const rateLimiter = require('express-rate-limit')
+
 const app = express();
+
+app.use(rateLimiter({
+    windowMs: 15 *60 * 1000,
+    max:100,
+}
+))
+app.use(helmet())
+app.use(xss())
 
 app.use(
   session({
@@ -37,25 +50,6 @@ app.get("/", (req, res) => {
 });
 app.use("/sessions", require("./routes/sessionRoutes"));
 
-// secret word handling
-let secretWord = "syzygy";
-const secretWordRouter = require("./routes/secretWord");
-app.use("/secretWord", secretWordRouter);
-const auth = require("./middleware/auth");
-app.use("/secretWord", auth, secretWordRouter);
-
-const MongoDBStore = require("connect-mongodb-session")(session);
-const url = process.env.MONGO_URI;
-
-const store = new MongoDBStore({
-  // may throw an error, which won't be caught
-  uri: url,
-  collection: "mySessions",
-});
-store.on("error", function (error) {
-  console.log(error);
-});
-
 //csrf
 let csrf_development_mode = true;
 
@@ -68,11 +62,24 @@ const csrf_options = {
   protected_content_types: ["application/json"],
   development_mode: csrf_development_mode,
 };
-const csrf_middleware = csrf(csrf_options); //initialise and return middlware
+const csrf_middleware = csrf(csrf_options); //initialize and return middleware
 
 app.use(csrf_middleware);
 
-const sessionParms = {
+const MongoDBStore = require("connect-mongodb-session")(session);
+const url = process.env.MONGO_URI;
+
+const store = new MongoDBStore({
+  // may throw an error, which won't be caught
+  uri: url,
+  collection: "mySessions",
+});
+
+store.on("error", function (error) {
+  console.log(error);
+});
+
+const sessionParams = {
   secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
@@ -82,10 +89,10 @@ const sessionParms = {
 
 if (app.get("env") === "production") {
   app.set("trust proxy", 1); // trust first proxy
-  sessionParms.cookie.secure = true; // serve secure cookies
+  sessionParams.cookie.secure = true; // serve secure cookies
 }
 
-app.use(session(sessionParms));
+app.use(session(sessionParams));
 
 // secret word handling
 let secretWord = "syzygy";
