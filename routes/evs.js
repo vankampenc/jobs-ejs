@@ -40,7 +40,7 @@ router.post("/", async (req, res) => {
     req.body.createdBy = req.user._id
     const ev = await Ev.create(req.body)
     console.log("EV", ev)
-    res.status(200).json({ ev })
+    res.redirect("/evs")
 })
 
 
